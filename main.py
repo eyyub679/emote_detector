@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torchvision.transforms import v2
 import cv2
+from pathlib import Path
 
 #Define the model
 class Emote_detector(nn.Module):
@@ -64,7 +65,8 @@ def main():
     model=Emote_detector()
 
     #load modal parameters
-    model.load_state_dict(torch.load("model_params/emotion_detector.pth",map_location=device)) # if we put slash in front of model_params then it will start looking from the system directory so remove it
+    model_path = Path(__file__).parent / "model_params/emotion_detector.pth"
+    model.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
     model.eval() #disables dropout so we can use the full model
 
     emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
@@ -81,6 +83,9 @@ def main():
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
     cap=cv2.VideoCapture(0) # 0 means our laptop camera
+    if not cap.isOpened():
+        print("Error: Could not access the webcam.")
+        return
 
     print("Press q to quit")
 
